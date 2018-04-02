@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Mastodon instance custom emoji list{% endblock title %}
+{% block body %}
+<p>get the emojos for:</p>
+<form method="POST" action="">
+    <input type="text" name="instance" placeholder="instance.domain">
+    <input type="submit" value="go">
+</form>
+<p>(&ldquo;emojo&rdquo; is the semi-jokey term for custom emoji on <a href="https://joinmastodon.org">Mastodon</a>.)</p>
+{% endblock body %}

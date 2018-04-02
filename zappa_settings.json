@@ -1,0 +1,12 @@
+{
+    "prod": {
+        "app_function": "emojos.app",
+        "aws_region": "us-west-2",
+        "profile_name": "+emojos.in",
+        "project_name": "emojos-in",
+        "runtime": "python3.6",
+        "s3_bucket": "zappa-ha6nqt04p",
+        "domain": "emojos.in",
+        "certificate_arn": "arn:aws:acm:us-east-1:672373865878:certificate/b82eba06-6091-460e-af21-4f265e1206e9"
+    }
+}

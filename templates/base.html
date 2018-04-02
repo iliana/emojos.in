@@ -1,0 +1,12 @@
+<!doctype html>
+<html>
+    <head>
+        <title>{% block title %}{% endblock title %}</title>
+        <link rel="stylesheet" href="{{ url_for('static', filename='site.css') }}">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+    </head>
+    <body>
+        {% block body %}
+        {% endblock body %}
+    </body>
+</html>

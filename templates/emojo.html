@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Custom emoji list for {{ domain }}{% endblock title %}
+{% block body %}
+<p>
+    <b>{{ domain }}</b> emojo list<br>
+    click/touch to copy to clipboard
+</p>
+<dl class="emojo">
+    {% for emoj in emojo %}
+    <div>
+        <dt><img src="{{ emoj['static_url'] }}" alt=":{{ emoj['shortcode'] }}:"></dt>
+        <dd>:{{ emoj.shortcode }}:</dd>
+    </div>
+    {% endfor %}
+</dl>
+<script src="{{ url_for('static', filename='copy.js') }}"></script>
+{% endblock body %}

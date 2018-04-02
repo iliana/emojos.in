@@ -1,0 +1,45 @@
+body {
+    font-family: sans-serif;
+    font-size: 15px;
+    line-height: 20px;
+    background-color: rgb(40, 44, 55);
+    color: white;
+}
+
+a {
+    color: rgb(217, 225, 232);
+}
+
+dl.emojo {
+    column-width: 220px;
+    column-gap: 20px;
+    column-rule: 1px solid gray;
+}
+
+dl.emojo div {
+    height: 20px;
+    padding-bottom: 5px;
+}
+
+dl.emojo dt {
+    width: 28px;
+    height: 20px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+dl.emojo dt img {
+    height: 20px;
+    width: 20px;
+    margin: -3px 0 0;
+}
+
+dl.emojo dd {
+    height: 20px;
+    display: table-cell;
+    vertical-align: middle;
+}
+
+dl.emojo dd.success {
+    color: rgb(202, 143, 4);
+}
