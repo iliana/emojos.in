@@ -35,6 +35,12 @@ def emojo(domain):
         return render_template('oh_no.html')
 
 
+@app.route('/favicon.ico')
+@app.route('/robots.txt')
+def no_content():
+    return ('', 204)
+
+
 @app.route('/', methods=('GET', 'POST'))
 def index():
     if request.method == 'POST':
