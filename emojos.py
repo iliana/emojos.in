@@ -13,6 +13,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
+import botocore.session
 import operator
 import requests
 import urllib.parse
@@ -39,6 +40,17 @@ def emojo(domain):
 @app.route('/robots.txt')
 def no_content():
     return ('', 204)
+
+
+@app.route('/code')
+def code():
+    context = request.environ.get('lambda.context')
+    session = botocore.session.get_session()
+    # region name is detected from lambda environment
+    client = session.create_client('lambda')
+    code = client.get_function(FunctionName=context.function_name,
+                               Qualifier=context.function_version)
+    return redirect(code['Code']['Location'], code=303)
 
 
 @app.route('/', methods=('GET', 'POST'))

@@ -13,5 +13,7 @@
     </div>
     {% endfor %}
 </dl>
-<script src="{{ url_for('static', filename='copy.js') }}"></script>
 {% endblock body %}
+{% block script %}
+<script src="{{ url_for('static', filename='copy.js') }}"></script>
+{% endblock script %}

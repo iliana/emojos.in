@@ -43,3 +43,7 @@ dl.emojo dd {
 dl.emojo dd.success {
     color: rgb(202, 143, 4);
 }
+
+footer {
+    font-size: smaller;
+}
