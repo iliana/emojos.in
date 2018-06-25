@@ -4,6 +4,10 @@
     const range = document.createRange();
     const dd = this.querySelector('dd');
 
+    if (dd.classList.contains('success')) {
+      return;
+    }
+
     range.selectNodeContents(dd.childNodes[0]);
     selection.removeAllRanges();
     selection.addRange(range);
