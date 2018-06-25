@@ -28,7 +28,7 @@ def emojo(domain):
     try:
         url = urllib.parse.urlunsplit(
             ('https', domain, '/api/v1/custom_emojis', '', ''))
-        emojo = sorted(filter(lambda x: x['visible_in_picker'],
+        emojo = sorted(filter(lambda x: x.get('visible_in_picker', True),
                               requests.get(url).json()),
                        key=operator.itemgetter('shortcode'))
         return render_template('emojo.html', domain=domain, emojo=emojo)
