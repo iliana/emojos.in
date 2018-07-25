@@ -11,34 +11,28 @@ a {
 }
 
 dl.emojo {
-    column-width: 220px;
-    column-gap: 20px;
-    column-rule: 1px solid gray;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(15em, max-content));
+    grid-row-gap: 5px;
 }
 
 dl.emojo div {
-    height: 20px;
-    padding-bottom: 5px;
+    cursor: pointer;
 }
 
-dl.emojo dt {
-    width: 28px;
-    height: 20px;
-    display: table-cell;
-    vertical-align: middle;
+dl.emojo div * {
+    display: inline-block;
 }
 
 dl.emojo dt img {
     height: 20px;
-    width: 20px;
+    width: 28px;
     object-fit: contain;
-    margin: -3px 0 0;
 }
 
 dl.emojo dd {
-    height: 20px;
-    display: table-cell;
-    vertical-align: middle;
+    margin-left: 0;
+    padding: 0px 8px;
 }
 
 dl.emojo dd.success {
