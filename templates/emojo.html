@@ -8,7 +8,7 @@
 <dl class="emojo">
     {% for emoj in emojo %}
     <div>
-        <dt><img src="{{ emoj['static_url'] }}" alt=":{{ emoj['shortcode'] }}:"></dt>
+        <dt><img src="{{ emoj.static_url }}" alt=":{{ emoj.shortcode }}:"></dt>
         <dd>:{{ emoj.shortcode }}:</dd>
     </div>
     {% endfor %}
