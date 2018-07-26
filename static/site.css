@@ -28,6 +28,8 @@ dl.emojo dt img {
     height: 20px;
     width: 20px;
     object-fit: contain;
+    vertical-align: middle;
+    padding-bottom: 2px;
 }
 
 dl.emojo dd {
