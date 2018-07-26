@@ -33,7 +33,7 @@ def emojo(domain):
                        key=operator.itemgetter('shortcode'))
         return render_template('emojo.html', domain=domain, emojo=emojo)
     except requests.exceptions.RequestException as e:
-        return render_template('oh_no.html')
+        return render_template('oh_no.html', domain=domain)
 
 
 @app.route('/favicon.ico')
