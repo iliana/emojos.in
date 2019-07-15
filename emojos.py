@@ -25,13 +25,26 @@ app = Flask(__name__)
 
 @app.route('/<domain>')
 def emojo(domain):
+    if request.args.get('filter_all','') == 'on':
+        filter_all = True
+    else:
+        filter_all = False
+    if request.args.get('filter_animated','') == 'on':
+        filter_animated = True
+    else:
+        filter_animated = False
+    
     try:
         url = urllib.parse.urlunsplit(
             ('https', domain, '/api/v1/custom_emojis', '', ''))
-        emojo = sorted(filter(lambda x: x.get('visible_in_picker', True),
-                              requests.get(url).json()),
-                       key=operator.itemgetter('shortcode'))
-        return render_template('emojo.html', domain=domain, emojo=emojo)
+        if filter_all:
+            emojo = sorted(requests.get(url).json(),
+                        key=operator.itemgetter('shortcode'))
+        else:
+            emojo = sorted(filter(lambda x: x.get('visible_in_picker', True),
+                                requests.get(url).json()),
+                        key=operator.itemgetter('shortcode'))
+        return render_template('emojo.html', domain=domain, emojo=emojo, filter_animated=filter_animated)
     except requests.exceptions.RequestException as e:
         return render_template('oh_no.html', domain=domain)
 
@@ -57,7 +70,10 @@ def code():
 def index():
     if request.method == 'POST':
         if 'instance' in request.form:
-            return redirect(url_for('emojo', domain=request.form['instance']))
+            filter_all = request.form.get('filter_all')
+            filter_animated = request.form.get('filter_animated')
+            return redirect(url_for('emojo', domain=request.form['instance'], 
+                filter_all=filter_all, filter_animated=filter_animated))
         else:
             return redirect(url_for('index'))
     else:
