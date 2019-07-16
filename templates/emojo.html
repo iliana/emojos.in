@@ -6,14 +6,13 @@
     click/touch to copy to clipboard
 </p>
 <dl class="emojo">
-    {% if filter_animated %}
+    {% if show_animated %}
         {% for emoj in emojo %}
         <div>
             <dt><img src="{{ emoj.url }}" alt=":{{ emoj.shortcode }}:"></dt>
             <dd>:{{ emoj.shortcode }}:</dd>
         </div>
         {% endfor %}
-    
     {% else %}
         {% for emoj in emojo %}
         <div>
