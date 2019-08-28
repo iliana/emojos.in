@@ -25,13 +25,23 @@ app = Flask(__name__)
 
 @app.route('/<domain>')
 def emojo(domain):
+    if request.args.get('show_all', '') == 'on':
+        show_all = True
+    else:
+        show_all = False
+    if request.args.get('show_animated', '') == 'on':
+        show_animated = True
+    else:
+        show_animated = False
+
     try:
-        url = urllib.parse.urlunsplit(
-            ('https', domain, '/api/v1/custom_emojis', '', ''))
-        emojo = sorted(filter(lambda x: x.get('visible_in_picker', True),
-                              requests.get(url).json()),
-                       key=operator.itemgetter('shortcode'))
-        return render_template('emojo.html', domain=domain, emojo=emojo)
+        url = urllib.parse.urlunsplit(('https', domain, '/api/v1/custom_emojis', '', ''))
+        if show_all:
+            emojo = sorted(requests.get(url).json(), key=operator.itemgetter('shortcode'))
+        else:
+            emojo = sorted(filter(lambda x: x.get('visible_in_picker', True), requests.get(url).json()),
+                           key=operator.itemgetter('shortcode'))
+        return render_template('emojo.html', domain=domain, emojo=emojo, show_animated=show_animated)
     except requests.exceptions.RequestException as e:
         return render_template('oh_no.html', domain=domain)
 
@@ -48,8 +58,7 @@ def code():
     session = botocore.session.get_session()
     # region name is detected from lambda environment
     client = session.create_client('lambda')
-    code = client.get_function(FunctionName=context.function_name,
-                               Qualifier=context.function_version)
+    code = client.get_function(FunctionName=context.function_name, Qualifier=context.function_version)
     return redirect(code['Code']['Location'], code=303)
 
 
@@ -57,7 +66,10 @@ def code():
 def index():
     if request.method == 'POST':
         if 'instance' in request.form:
-            return redirect(url_for('emojo', domain=request.form['instance']))
+            show_all = request.form.get('show_all')
+            show_animated = request.form.get('show_animated')
+            return redirect(
+                url_for('emojo', domain=request.form['instance'], show_all=show_all, show_animated=show_animated))
         else:
             return redirect(url_for('index'))
     else:
