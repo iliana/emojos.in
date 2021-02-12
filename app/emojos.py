@@ -24,10 +24,6 @@ from flask import Flask, redirect, render_template, request, url_for
 app = Flask(__name__)
 
 
-class ForbiddenEndpointError(Exception):
-    pass
-
-
 @app.route("/<domain>")
 def emojo(domain):
     if request.args.get("show_all", "") == "on":
@@ -45,7 +41,7 @@ def emojo(domain):
         )
         response = requests.get(url)
         if response.status_code == 401:
-            raise ForbiddenEndpointError
+            return render_template("forbidden.html", domain=domain)
 
         if show_all:
             emojo = sorted(response.json(), key=operator.itemgetter("shortcode"))
@@ -59,8 +55,6 @@ def emojo(domain):
         )
     except requests.exceptions.RequestException:
         return render_template("oh_no.html", domain=domain)
-    except ForbiddenEndpointError:
-        return render_template("forbidden.html", domain=domain)
 
 
 @app.route("/favicon.ico")
