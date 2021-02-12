@@ -1,4 +1,0 @@
-Flask
-botocore
-requests
-zappa

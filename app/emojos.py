@@ -1,4 +1,4 @@
-# Copyright (c) 2018 iliana weller
+# Copyright (c) 2021 iliana etaoin
 #
 # This program is free software: you can redistribute it and/or modify it under
 # the terms of the GNU Affero General Public License as published by the Free
@@ -16,6 +16,7 @@
 import botocore.session
 import operator
 import requests
+import serverless_wsgi
 import urllib.parse
 
 from flask import Flask, redirect, render_template, request, url_for
@@ -62,7 +63,7 @@ def no_content():
 
 @app.route('/code')
 def code():
-    context = request.environ.get('lambda.context')
+    context = request.environ.get('context')
     session = botocore.session.get_session()
     # region name is detected from lambda environment
     client = session.create_client('lambda')
@@ -82,3 +83,6 @@ def index():
             return redirect(url_for('index'))
     else:
         return render_template('index.html')
+
+def handle_request(event, context):
+    return serverless_wsgi.handle_request(app, event, context)
