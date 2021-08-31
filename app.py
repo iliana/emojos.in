@@ -13,7 +13,6 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import operator
 import urllib.parse
 
 import botocore.session
@@ -25,16 +24,20 @@ from flask import Flask, redirect, render_template, request, url_for
 
 app = Flask(__name__)
 
+
 def slug_filter(s):
     return s.lower().replace(" ", "-")
 
+
 app.jinja_env.filters["slug"] = slug_filter
+
 
 @dataclass
 class Emoj:
     __slots__ = frozenset({"shortcode", "url"})
     shortcode: str
     url: str
+
 
 @app.route("/<domain>")
 def emojo(domain):
@@ -47,9 +50,7 @@ def emojo(domain):
     else:
         show_animated = False
 
-    url = urllib.parse.urlunsplit(
-        ("https", domain, "/api/v1/custom_emojis", "", "")
-    )
+    url = urllib.parse.urlunsplit(("https", domain, "/api/v1/custom_emojis", "", ""))
     try:
         response = requests.get(url)
     except requests.exceptions.RequestException:
@@ -61,14 +62,18 @@ def emojo(domain):
     categories = defaultdict(list)
     for emoji in sorted(
         response.json(),
-        # sort by category, then name within each category, then disambiguate by capitalization
+        # sort by category,
+        # then name within each category,
+        # then disambiguate by capitalization
         key=lambda x: (x.get("category", ""), x["shortcode"].lower(), x["shortcode"]),
     ):
         if not show_all and not emoji.get("visible_in_picker", True):
             continue
 
         url = emoji["url" if show_animated else "static_url"]
-        categories[emoji.get("category")].append(Emoj(shortcode=emoji["shortcode"], url=url))
+        categories[emoji.get("category")].append(
+            Emoj(shortcode=emoji["shortcode"], url=url)
+        )
 
     return render_template(
         "emojo.html", domain=domain, categories=categories, show_animated=show_animated
