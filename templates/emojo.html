@@ -5,23 +5,23 @@
     <b>{{ domain }}</b> emojo list<br>
     click/touch to copy to clipboard
 </p>
-<dl class="emojo">
-    {% if show_animated %}
+{% for category, emojo in categories.items() %}
+    <h2 id="{{ category or "(No category)"|slug }}">
+        {% if not category %}
+            <em>(No category)</em>
+        {% else %}
+            <em>{{ category }}</em>
+        {% endif %}
+    </h2>
+    <dl class="emojo">
         {% for emoj in emojo %}
-        <div>
-            <dt><img src="{{ emoj.url }}" alt=":{{ emoj.shortcode }}:"></dt>
-            <dd>:{{ emoj.shortcode }}:</dd>
-        </div>
+            <div>
+                <dt><img src="{{ emoj.url }}" alt=":{{ emoj.shortcode }}:"></dt>
+                <dd>:{{ emoj.shortcode }}:</dd>
+            </div>
         {% endfor %}
-    {% else %}
-        {% for emoj in emojo %}
-        <div>
-            <dt><img src="{{ emoj.static_url }}" alt=":{{ emoj.shortcode }}:"></dt>
-            <dd>:{{ emoj.shortcode }}:</dd>
-        </div>
-        {% endfor %}
-    {% endif %}
-</dl>
+    </dl>
+{% endfor %}
 {% endblock body %}
 {% block script %}
 <script src="{{ url_for('static', filename='copy.js') }}"></script>
