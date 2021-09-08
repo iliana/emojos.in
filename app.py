@@ -36,6 +36,7 @@ def emojo(domain):
         show_animated = False
 
     try:
+        proto = "http" if domain.endswith(".onion") else "https"
         url = urllib.parse.urlunsplit(
             ("https", domain, "/api/v1/custom_emojis", "", "")
         )
