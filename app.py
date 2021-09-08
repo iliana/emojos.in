@@ -13,15 +13,30 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-import operator
 import urllib.parse
 
 import botocore.session
 import requests
 import serverless_wsgi
+from collections import defaultdict
+from dataclasses import dataclass
 from flask import Flask, redirect, render_template, request, url_for
 
 app = Flask(__name__)
+
+
+def slug_filter(s):
+    return s.lower().replace(" ", "-")
+
+
+app.jinja_env.filters["slug"] = slug_filter
+
+
+@dataclass
+class Emoj:
+    __slots__ = frozenset({"shortcode", "url"})
+    shortcode: str
+    url: str
 
 
 @app.route("/<domain>")
@@ -35,26 +50,34 @@ def emojo(domain):
     else:
         show_animated = False
 
+    url = urllib.parse.urlunsplit(("https", domain, "/api/v1/custom_emojis", "", ""))
     try:
-        url = urllib.parse.urlunsplit(
-            ("https", domain, "/api/v1/custom_emojis", "", "")
-        )
         response = requests.get(url)
-        if response.status_code == 401:
-            return render_template("forbidden.html", domain=domain)
-
-        if show_all:
-            emojo = sorted(response.json(), key=operator.itemgetter("shortcode"))
-        else:
-            emojo = sorted(
-                filter(lambda x: x.get("visible_in_picker", True), response.json()),
-                key=operator.itemgetter("shortcode"),
-            )
-        return render_template(
-            "emojo.html", domain=domain, emojo=emojo, show_animated=show_animated
-        )
     except requests.exceptions.RequestException:
         return render_template("oh_no.html", domain=domain)
+
+    if response.status_code == 401:
+        return render_template("forbidden.html", domain=domain)
+
+    categories = defaultdict(list)
+    for emoji in sorted(
+        response.json(),
+        # sort by category,
+        # then name within each category,
+        # then disambiguate by capitalization
+        key=lambda x: (x.get("category", ""), x["shortcode"].lower(), x["shortcode"]),
+    ):
+        if not show_all and not emoji.get("visible_in_picker", True):
+            continue
+
+        url = emoji["url" if show_animated else "static_url"]
+        categories[emoji.get("category")].append(
+            Emoj(shortcode=emoji["shortcode"], url=url)
+        )
+
+    return render_template(
+        "emojo.html", domain=domain, categories=categories, show_animated=show_animated
+    )
 
 
 @app.route("/favicon.ico")
