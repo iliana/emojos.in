@@ -1,0 +1,22 @@
+[package]
+name = "emojos-dot-in"
+version = "2.0.0"
+edition = "2021"
+license = "AGPL-3.0-or-later"
+description = "Shows custom emoji for Mastodon/Pleroma instances"
+homepage = "https://emojos.in"
+repository = "https://github.com/iliana/emojos.in"
+publish = false
+
+[dependencies]
+anyhow = "1"
+askama = "0.11"
+lambda_http = "0.5"
+reqwest = { version = "0.11", features = ["gzip", "brotli", "deflate", "json"] }
+rocket = { version = "0.5.0-rc.2", default-features = false }
+serde = { version = "1", features = ["derive"] }
+tokio = { version = "1", features = ["rt-multi-thread"] }
+
+[build-dependencies]
+anyhow = "1"
+zip = { version = "0.6", default-features = false, features = ["deflate"] }

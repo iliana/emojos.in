@@ -1,5 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Custom emoji list for {{ domain }}{% endblock title %}
+{% block title %}Custom emoji list for {{ instance }}{% endblock title %}
 {% block body %}
-<p><b>{{ domain }}</b> isn't a fediverse instance or doesn't have a <code>v1/custom_emojis</code> endpoint. :(</p>
+<p>
+    <b>{{ instance }}</b>'s custom emoji API (/api/v1/custom_emojis) returned {{ status }}.
+    {{ why }} :(
+</p>
 {% endblock body %}

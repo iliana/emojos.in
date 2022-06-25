@@ -1,8 +1,8 @@
 {% extends "base.html" %}
-{% block title %}Custom emoji list for {{ domain }}{% endblock title %}
+{% block title %}Custom emoji list for {{ instance }}{% endblock title %}
 {% block body %}
 <p>
-    <b>{{ domain }}</b> emojo list<br>
+    <b>{{ instance }}</b> emojo list<br>
     click/touch to copy to clipboard
 </p>
 <dl class="emojo">
@@ -24,5 +24,5 @@
 </dl>
 {% endblock body %}
 {% block script %}
-<script src="{{ url_for('static', filename='copy.js') }}"></script>
+<script src="/static/copy.js"></script>
 {% endblock script %}
