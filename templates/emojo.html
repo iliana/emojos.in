@@ -9,14 +9,14 @@
     {% if show_animated %}
         {% for emoj in emojo %}
         <div>
-            <dt><img src="{{ emoj.url }}" alt=":{{ emoj.shortcode }}:"></dt>
+            <dt><img src="{{ emoj.url }}" alt=":{{ emoj.shortcode }}:" loading=lazy></dt>
             <dd>:{{ emoj.shortcode }}:</dd>
         </div>
         {% endfor %}
     {% else %}
         {% for emoj in emojo %}
         <div>
-            <dt><img src="{{ emoj.static_url }}" alt=":{{ emoj.shortcode }}:"></dt>
+            <dt><img src="{{ emoj.static_url }}" alt=":{{ emoj.shortcode }}:" loading=lazy></dt>
             <dd>:{{ emoj.shortcode }}:</dd>
         </div>
         {% endfor %}
