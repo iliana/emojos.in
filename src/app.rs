@@ -54,8 +54,8 @@ struct InstanceForm<'a> {
 fn instance_form(form: Form<InstanceForm<'_>>) -> Redirect {
     Redirect::to(uri!(instance(
         form.instance,
-        form.show_all.then(|| true),
-        form.show_animated.then(|| true),
+        form.show_all.then_some(true),
+        form.show_animated.then_some(true),
     )))
 }
 
@@ -115,7 +115,7 @@ async fn instance(
 
         let mut emojo: Vec<Emojo> = response.json().await?;
         if !show_all {
-            emojo = emojo.into_iter().filter(|x| x.visible_in_picker).collect();
+            emojo.retain(|x| x.visible_in_picker);
         }
 
         anyhow::Ok(

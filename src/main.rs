@@ -26,7 +26,7 @@ fn main() {
             .block_on(async {
                 let client = Client::untracked(app::rocket()).await.unwrap();
                 lambda_http::run(service_fn(|request| async {
-                    Ok(handler(request, &client).await?)
+                    anyhow::Ok(handler(request, &client).await?)
                 }))
                 .await
                 .unwrap();
