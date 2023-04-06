@@ -3,12 +3,13 @@
 #![warn(clippy::pedantic)]
 #![allow(clippy::needless_pass_by_value, clippy::no_effect_underscore_binding)]
 
+mod trivial;
+
 use askama::Template;
 use reqwest::{Client, StatusCode, Url};
-use rocket::form::{Form, FromForm};
 use rocket::http::{ContentType, Header, Status};
-use rocket::response::{self, status::NoContent, Debug, Redirect, Responder};
-use rocket::{get, post, routes, uri, Request, Response, State};
+use rocket::response::{self, Debug, Responder};
+use rocket::{get, routes, Request, Response, State};
 use serde::Deserialize;
 use std::io::Cursor;
 use std::str::FromStr;
@@ -26,14 +27,14 @@ fn rocket() -> _ {
     rocket::build().manage(client).mount(
         "/",
         routes![
-            code,
-            copy_js,
-            css,
-            favicon_ico,
-            index,
             instance,
-            instance_form,
-            robots_txt
+            trivial::code,
+            trivial::copy_js,
+            trivial::css,
+            trivial::favicon_ico,
+            trivial::index,
+            trivial::instance_form,
+            trivial::robots_txt,
         ],
     )
 }
@@ -49,31 +50,6 @@ impl<T: Template> Responder<'_, 'static> for Html<T> {
             .sized_body(data.len(), Cursor::new(data))
             .ok()
     }
-}
-
-#[derive(Template)]
-#[template(path = "index.html")]
-struct Index;
-
-#[get("/")]
-fn index() -> Html<Index> {
-    Html(Index)
-}
-
-#[derive(FromForm)]
-struct InstanceForm<'a> {
-    instance: &'a str,
-    show_all: bool,
-    show_animated: bool,
-}
-
-#[post("/", data = "<form>")]
-fn instance_form(form: Form<InstanceForm<'_>>) -> Redirect {
-    Redirect::to(uri!(instance(
-        form.instance,
-        form.show_all.then_some(true),
-        form.show_animated.then_some(true),
-    )))
 }
 
 #[get("/<instance>?<show_all>&<show_animated>")]
@@ -146,43 +122,4 @@ async fn instance(
     }
     .await?;
     Ok((ContentType::HTML, output))
-}
-
-#[derive(Responder)]
-struct Code {
-    zip: &'static [u8],
-    content_type: ContentType,
-    disposition: Header<'static>,
-}
-
-#[get("/code")]
-fn code() -> Code {
-    Code {
-        zip: include_bytes!(concat!(env!("OUT_DIR"), "/source.zip")),
-        content_type: ContentType::ZIP,
-        disposition: Header::new(
-            "content-disposition",
-            r#"attachment; filename="emojos.in.zip""#,
-        ),
-    }
-}
-
-#[get("/static/site.css")]
-fn css() -> (ContentType, &'static str) {
-    (ContentType::CSS, include_str!("site.css"))
-}
-
-#[get("/static/copy.js")]
-fn copy_js() -> (ContentType, &'static str) {
-    (ContentType::JavaScript, include_str!("copy.js"))
-}
-
-#[get("/favicon.ico")]
-fn favicon_ico() -> NoContent {
-    NoContent
-}
-
-#[get("/robots.txt")]
-fn robots_txt() -> NoContent {
-    NoContent
 }
