@@ -7,6 +7,7 @@ description = "Shows custom emoji for Mastodon/Pleroma instances"
 homepage = "https://emojos.in"
 repository = "https://github.com/iliana/emojos.in"
 publish = false
+include = ["/build.rs", "/src", "/static", "/templates", "/LICENSE", ".gitignore"]
 
 [dependencies]
 anyhow = "1"
