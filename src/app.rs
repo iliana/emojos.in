@@ -159,18 +159,12 @@ fn code() -> Code {
 
 #[get("/static/site.css")]
 fn css() -> (ContentType, &'static str) {
-    (
-        ContentType::CSS,
-        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/static/site.css")),
-    )
+    (ContentType::CSS, include_str!("site.css"))
 }
 
 #[get("/static/copy.js")]
 fn copy_js() -> (ContentType, &'static str) {
-    (
-        ContentType::JavaScript,
-        include_str!(concat!(env!("CARGO_MANIFEST_DIR"), "/static/copy.js")),
-    )
+    (ContentType::JavaScript, include_str!("copy.js"))
 }
 
 #[get("/favicon.ico")]
