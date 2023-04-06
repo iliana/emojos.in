@@ -13,7 +13,8 @@ use rocket::{get, post, routes, uri, Build, Rocket, State};
 use serde::Deserialize;
 use std::str::FromStr;
 
-pub fn rocket() -> Rocket<Build> {
+#[rocket::launch]
+fn rocket() -> Rocket<Build> {
     rocket::build()
         .manage(
             Client::builder()
