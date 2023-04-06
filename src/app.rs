@@ -76,7 +76,7 @@ async fn instance(
         shortcode: String,
         url: String,
         static_url: String,
-        visible_in_picker: bool,
+        visible_in_picker: Option<bool>,
     }
 
     #[derive(Template)]
@@ -120,7 +120,7 @@ async fn instance(
 
         let mut emojo: Vec<Emojo> = response.json().await?;
         if !show_all {
-            emojo.retain(|x| x.visible_in_picker);
+            emojo.retain(|x| x.visible_in_picker.unwrap_or(true));
         }
 
         anyhow::Ok(
