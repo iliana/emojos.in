@@ -6,11 +6,11 @@
 use askama::Template;
 use reqwest::{Client, StatusCode, Url};
 use rocket::form::{Form, FromForm};
-use rocket::http::{ContentType, Header};
-use rocket::response::status::NoContent;
-use rocket::response::{Debug, Redirect, Responder};
-use rocket::{get, post, routes, uri, State};
+use rocket::http::{ContentType, Header, Status};
+use rocket::response::{self, status::NoContent, Debug, Redirect, Responder};
+use rocket::{get, post, routes, uri, Request, Response, State};
 use serde::Deserialize;
+use std::io::Cursor;
 use std::str::FromStr;
 
 #[rocket::launch]
@@ -38,13 +38,26 @@ fn rocket() -> _ {
     )
 }
 
-#[get("/")]
-fn index() -> Result<(ContentType, String), Debug<askama::Error>> {
-    #[derive(Template)]
-    #[template(path = "index.html")]
-    struct Index;
+#[derive(Debug)]
+struct Html<T: Template>(T);
 
-    Ok((ContentType::HTML, Index.render()?))
+impl<T: Template> Responder<'_, 'static> for Html<T> {
+    fn respond_to(self, _request: &Request<'_>) -> response::Result<'static> {
+        let data = self.0.render().map_err(|_| Status::InternalServerError)?;
+        Response::build()
+            .header(Header::new("content-type", T::MIME_TYPE))
+            .sized_body(data.len(), Cursor::new(data))
+            .ok()
+    }
+}
+
+#[derive(Template)]
+#[template(path = "index.html")]
+struct Index;
+
+#[get("/")]
+fn index() -> Html<Index> {
+    Html(Index)
 }
 
 #[derive(FromForm)]
