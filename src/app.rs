@@ -145,10 +145,8 @@ struct Code {
 
 #[get("/code")]
 fn code() -> Code {
-    let zip = include_bytes!(concat!(env!("OUT_DIR"), "/source.zip"));
-
     Code {
-        zip,
+        zip: include_bytes!(concat!(env!("OUT_DIR"), "/source.zip")),
         content_type: ContentType::ZIP,
         disposition: Header::new(
             "content-disposition",
