@@ -9,35 +9,33 @@ use rocket::form::{Form, FromForm};
 use rocket::http::{ContentType, Header};
 use rocket::response::status::NoContent;
 use rocket::response::{Debug, Redirect, Responder};
-use rocket::{get, post, routes, uri, Build, Rocket, State};
+use rocket::{get, post, routes, uri, State};
 use serde::Deserialize;
 use std::str::FromStr;
 
 #[rocket::launch]
-fn rocket() -> Rocket<Build> {
-    rocket::build()
-        .manage(
-            Client::builder()
-                .user_agent(format!(
-                    "emojos.in/{} (+https://github.com/iliana/emojos.in)",
-                    env!("CARGO_PKG_VERSION")
-                ))
-                .build()
-                .unwrap(),
-        )
-        .mount(
-            "/",
-            routes![
-                code,
-                copy_js,
-                css,
-                favicon_ico,
-                index,
-                instance,
-                instance_form,
-                robots_txt
-            ],
-        )
+fn rocket() -> _ {
+    let client = Client::builder()
+        .user_agent(format!(
+            "emojos.in/{} (+https://github.com/iliana/emojos.in)",
+            env!("CARGO_PKG_VERSION")
+        ))
+        .build()
+        .unwrap();
+
+    rocket::build().manage(client).mount(
+        "/",
+        routes![
+            code,
+            copy_js,
+            css,
+            favicon_ico,
+            index,
+            instance,
+            instance_form,
+            robots_txt
+        ],
+    )
 }
 
 #[get("/")]
