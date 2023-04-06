@@ -1,3 +1,8 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+
+#![warn(clippy::pedantic)]
+#![allow(clippy::needless_pass_by_value, clippy::no_effect_underscore_binding)]
+
 use askama::Template;
 use reqwest::{Client, StatusCode, Url};
 use rocket::form::{Form, FromForm};
