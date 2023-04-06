@@ -144,16 +144,17 @@ struct Code {
 }
 
 #[get("/code")]
-fn code() -> Option<Code> {
-    let zip = include!(concat!(env!("OUT_DIR"), "/zip.rs"))?;
-    Some(Code {
+fn code() -> Code {
+    let zip = include_bytes!(concat!(env!("OUT_DIR"), "/source.zip"));
+
+    Code {
         zip,
         content_type: ContentType::ZIP,
         disposition: Header::new(
             "content-disposition",
             r#"attachment; filename="emojos.in.zip""#,
         ),
-    })
+    }
 }
 
 #[get("/static/site.css")]
