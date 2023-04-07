@@ -7,7 +7,7 @@ mod trivial;
 
 use askama::Template;
 use reqwest::{Client, StatusCode, Url};
-use rocket::http::{ContentType, Header, Status};
+use rocket::http::{Header, Status};
 use rocket::response::{self, Debug, Responder};
 use rocket::{get, routes, Request, Response, State};
 use serde::Deserialize;
@@ -39,7 +39,6 @@ fn rocket() -> _ {
     )
 }
 
-#[derive(Debug)]
 struct Html<T: Template>(T);
 
 impl<T: Template> Responder<'_, 'static> for Html<T> {
@@ -52,74 +51,134 @@ impl<T: Template> Responder<'_, 'static> for Html<T> {
     }
 }
 
+#[derive(Deserialize)]
+struct Emojo {
+    shortcode: String,
+    url: String,
+    static_url: String,
+    visible_in_picker: Option<bool>,
+}
+
+#[derive(Template)]
+#[template(path = "emojo.html")]
+struct Output {
+    instance: String,
+    show_animated: bool,
+    emojo: Vec<Emojo>,
+}
+
 #[get("/<instance>?<show_all>&<show_animated>")]
 async fn instance(
     client: &State<Client>,
-    instance: &str,
+    instance: String,
     show_all: Option<bool>,
     show_animated: Option<bool>,
-) -> Result<(ContentType, String), Debug<anyhow::Error>> {
-    #[derive(Deserialize)]
-    struct Emojo {
-        shortcode: String,
-        url: String,
-        static_url: String,
-        visible_in_picker: Option<bool>,
-    }
-
-    #[derive(Template)]
-    #[template(path = "emojo.html")]
-    struct Output<'a> {
-        instance: &'a str,
-        show_animated: bool,
-        emojo: Vec<Emojo>,
-    }
-
-    #[derive(Template)]
-    #[template(path = "oh_no.html")]
-    struct OhNo<'a> {
-        instance: &'a str,
-        status: StatusCode,
-        why: &'a str,
-    }
-
+) -> Result<Html<Output>, InstanceError> {
     let show_all = show_all.unwrap_or_default();
     let show_animated = show_animated.unwrap_or_default();
 
-    let output = async {
-        let mut url = Url::from_str("https://host.invalid/api/v1/custom_emojis").unwrap();
-        url.set_host(Some(instance))?;
-
-        let response = client.get(url).send().await?;
-        if response.status().is_client_error() || response.status().is_server_error() {
-            return Ok(OhNo {
-                instance,
-                status: response.status(),
-                why: match response.status() {
-                    StatusCode::FORBIDDEN => "This instance's emoji list is private.",
-                    StatusCode::NOT_FOUND => {
-                        "This instance doesn't support the Mastodon custom emoji API."
-                    }
-                    _ => "That's all we know.",
-                },
-            }
-            .render()?);
-        }
-
-        let mut emojo: Vec<Emojo> = response.json().await?;
-        if !show_all {
-            emojo.retain(|x| x.visible_in_picker.unwrap_or(true));
-        }
-
-        anyhow::Ok(
-            Output {
-                instance,
-                show_animated,
-                emojo,
-            }
-            .render()?,
-        )
+    let mut url = Url::from_str("https://host.invalid/api/v1/custom_emojis").unwrap();
+    if url.set_host(Some(&instance)).is_err() {
+        return Err(InstanceError::from_kind(Kind::NotFound, instance));
     }
-    .await?;
-    Ok((ContentType::HTML, output))
+
+    let mut emojo = match client
+        .get(url)
+        .send()
+        .await
+        .and_then(reqwest::Response::error_for_status)
+    {
+        Ok(response) => match response.json::<Vec<Emojo>>().await {
+            Ok(emojo) => emojo,
+            Err(err) => return Err(InstanceError::new(err, instance)),
+        },
+        Err(err) => return Err(InstanceError::new(err, instance)),
+    };
+    if !show_all {
+        emojo.retain(|x| x.visible_in_picker.unwrap_or(true));
+    }
+
+    Ok(Html(Output {
+        instance,
+        show_animated,
+        emojo,
+    }))
+}
+
+#[derive(Template)]
+#[template(path = "oh_no.html")]
+struct ErrorDisplay {
+    status: Status,
+    instance: String,
+    kind: Kind,
+}
+
+#[derive(Responder)]
+enum InstanceError {
+    Display((Status, Html<ErrorDisplay>)),
+    Debug(Debug<reqwest::Error>),
+}
+
+impl InstanceError {
+    fn new(err: reqwest::Error, instance: String) -> InstanceError {
+        let kind = match err.status() {
+            Some(StatusCode::UNAUTHORIZED | StatusCode::FORBIDDEN) => Kind::Private,
+            Some(StatusCode::NOT_FOUND | StatusCode::METHOD_NOT_ALLOWED | StatusCode::GONE) => {
+                Kind::NotFound
+            }
+            Some(_) => return InstanceError::Debug(Debug(err)),
+            None => {
+                if err.is_connect() {
+                    Kind::NotFound
+                } else if err.is_decode() || err.is_redirect() {
+                    Kind::Malformed
+                } else if err.is_timeout() {
+                    Kind::TimedOut
+                } else {
+                    return InstanceError::Debug(Debug(err));
+                }
+            }
+        };
+        InstanceError::from_kind(kind, instance)
+    }
+
+    fn from_kind(kind: Kind, instance: String) -> InstanceError {
+        InstanceError::from(ErrorDisplay {
+            status: match kind {
+                Kind::Malformed => Status::BadGateway,
+                Kind::NotFound => Status::NotFound,
+                Kind::Private => Status::Forbidden,
+                Kind::TimedOut => Status::GatewayTimeout,
+            },
+            instance,
+            kind,
+        })
+    }
+}
+
+impl From<ErrorDisplay> for InstanceError {
+    fn from(display: ErrorDisplay) -> InstanceError {
+        InstanceError::Display((display.status, Html(display)))
+    }
+}
+
+#[derive(Clone, Copy)]
+enum Kind {
+    Malformed,
+    NotFound,
+    Private,
+    TimedOut,
+}
+
+impl Kind {
+    fn message(self) -> &'static str {
+        match self {
+            Kind::Malformed => "Response from the instance was malformed",
+            Kind::NotFound => {
+                "Not a fediverse instance, or does not support the Mastodon custom emoji API"
+            }
+            Kind::Private => "Instance emoji list is private",
+            Kind::TimedOut => "Timed out waiting for response",
+        }
+    }
 }

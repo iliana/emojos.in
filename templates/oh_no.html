@@ -1,8 +1,7 @@
 {% extends "base.html" %}
-{% block title %}Custom emoji list for {{ instance }}{% endblock title %}
+{% block title %}Error{% endblock title %}
 {% block body %}
 <p>
-    <b>{{ instance }}</b>'s custom emoji API (/api/v1/custom_emojis) returned {{ status }}.
-    {{ why }} :(
+    <b>Error</b>: {{ instance }}: {{ kind.message() }}. :(
 </p>
 {% endblock body %}
