@@ -2,6 +2,7 @@
 name = "emojos-dot-in"
 version = "2.0.0"
 edition = "2021"
+rust-version = "1.73" # kept in sync with nixos stable
 license = "AGPL-3.0-or-later"
 description = "Shows custom emoji for Mastodon/Pleroma instances"
 homepage = "https://emojos.in"
@@ -11,7 +12,7 @@ include = ["/build.rs", "/src", "/static", "/templates", "/LICENSE", ".gitignore
 
 [dependencies]
 askama = { version = "0.12", default-features = false }
-reqwest = { version = "0.11", features = ["gzip", "brotli", "deflate", "json"] }
+reqwest = { version = "0.12", features = ["gzip", "brotli", "deflate", "json"] }
 rocket = { version = "0.5", default-features = false }
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["rt-multi-thread"] }
