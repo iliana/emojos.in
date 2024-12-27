@@ -2,7 +2,7 @@
 name = "emojos-dot-in"
 version = "2.0.0"
 edition = "2021"
-rust-version = "1.73" # kept in sync with nixos stable
+rust-version = "1.82" # kept in sync with nixos stable
 license = "AGPL-3.0-or-later"
 description = "Shows custom emoji for Mastodon/Pleroma instances"
 homepage = "https://emojos.in"
@@ -18,4 +18,5 @@ serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["rt-multi-thread"] }
 
 [build-dependencies]
-zip = { version = "0.6", default-features = false, features = ["deflate"] }
+fs-err = "3.0.0"
+zip = { version = "2", default-features = false, features = ["deflate"] }
