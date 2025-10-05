@@ -45,7 +45,7 @@ impl<T: Template> Responder<'_, 'static> for Html<T> {
     fn respond_to(self, _request: &Request<'_>) -> response::Result<'static> {
         let data = self.0.render().map_err(|_| Status::InternalServerError)?;
         Response::build()
-            .header(Header::new("content-type", T::MIME_TYPE))
+            .header(Header::new("content-type", "text/html; charset=utf-8"))
             .sized_body(data.len(), Cursor::new(data))
             .ok()
     }

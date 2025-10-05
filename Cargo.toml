@@ -1,8 +1,8 @@
 [package]
 name = "emojos-dot-in"
-version = "2.0.0"
+version = "2.1.0"
 edition = "2021"
-rust-version = "1.82" # kept in sync with nixos stable
+rust-version = "1.86" # kept in sync with nixos stable
 license = "AGPL-3.0-or-later"
 description = "Shows custom emoji for Mastodon/Pleroma instances"
 homepage = "https://emojos.in"
@@ -11,12 +11,12 @@ publish = false
 include = ["/build.rs", "/src", "/static", "/templates", "/LICENSE", ".gitignore"]
 
 [dependencies]
-askama = { version = "0.12", default-features = false }
-reqwest = { version = "0.12", features = ["gzip", "brotli", "deflate", "json"] }
-rocket = { version = "0.5", default-features = false }
-serde = { version = "1", features = ["derive"] }
-tokio = { version = "1", features = ["rt-multi-thread"] }
+askama = "0.14.0"
+reqwest = { version = "0.12.23", features = ["gzip", "brotli", "deflate", "json"] }
+rocket = { version = "0.5.1", default-features = false }
+serde = { version = "1.0.228", features = ["derive"] }
+tokio = { version = "1.47.1", features = ["rt-multi-thread"] }
 
 [build-dependencies]
-fs-err = "3.0.0"
-zip = { version = "2", default-features = false, features = ["deflate"] }
+fs-err = "3.1.3"
+zip = { version = "5.1.1", default-features = false, features = ["deflate"] }
